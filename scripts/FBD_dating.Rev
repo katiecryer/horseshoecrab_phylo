@@ -1,0 +1,53 @@
+# FBD model dataing script
+
+# Add speciation, extinction, and fossil sampling rates, assuming constant over time (stochastic)
+speciation_rate ~ dnExponential(10)
+extinction_rate ~ dnExponential(10)
+fossil_samp_rate ~ dnExponential(10)
+
+# Specify moves of parameters
+moves.append( mvScale(speciation_rate, lambda = 0.5, tune = true, weight = 3.0) )
+moves.append( mvScale(extinction_rate, lambda = 0.5, tune = true, weight = 3.0) )
+moves.append( mvScale(fossil_samp_rate, lambda = 0.5, tune = true, weight = 3.0) )
+
+# Deterministic variables for diversification and turnover
+diversification := speciation_rate - extinction_rate
+turnover := extinction_rate/speciation_rate
+
+# Probability of extant species sampling - constant of 1.0 since all extant
+rho <- 1.0
+
+# prior and move on the origin time parameter
+origin_time ~ dnUnif(37.0, 55.0)
+moves.append( mvSlide(origin_time, weight=1.0) )
+
+# Specify FBD model along w/ moves on tree topoloy and branch lengths
+tree ~ dnFBDP(lambda = speciation_rate, mu = extinction_rate, psi = fossil_samp_rate, rho = rho, origin = origin_time, taxa = taxa)
+
+# moves to search tree space
+moves.append( mvFNPR(tree, weight = 15.0) )
+moves.append( mvCollapseExpandFossilBranch(tree, origin_time, weight = 6.0) )
+moves.append( mvNodeTimeSlideUniform(tree, weight = 40.0) )
+moves.append( mvRootTimeSlideUniform(tree, origin_time, weight = 5.0) )
+
+
+# Deterministic variable for number of sampled ancestors
+num_samp_anc := tree.numSampledAncestors()
+
+# Accounting for fossil age uncertainty
+fossils = tree.getFossils()
+
+for(i in 1:fossils.size())
+{
+    t[i] := tmrca(tree, clade(fossils[i]))
+
+    a_i = fossils[i].getMinAge()
+    b_i = fossils[i].getMaxAge()
+
+    F[i] ~ dnUniform(t[i] - b_i, t[i] - a_i)
+    F[i].clamp( 0 )
+}
+
+# moves on fossil ages
+moves.append( mvFossilTimeSlideUniform(tree, origin_time, weight = 5.0) )
+

@@ -1,0 +1,9 @@
+# Mk Substitution model - probability of transitioning from one state to another
+
+# define Q matrix for 8 states
+Q <- fnJC(8)
+
+# stochastic node representing a character matric and "clamp" it to morpho data
+seq ~ dnPhyloCTMC(tree = tree, Q = Q, type = "Standard", branchRates = branch_rates)
+seq.clamp(morpho)
+
