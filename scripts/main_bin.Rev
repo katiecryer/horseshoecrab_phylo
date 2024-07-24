@@ -1,0 +1,47 @@
+# main script for bayesian tree inference using the fossilised birth-death process RevBayes
+
+# setwd("/Users/katiehefner/Documents/FAUPaleobiology/Semester_2/Phylogenetics/Project")
+# source("scripts/main_bin.Rev")
+
+# command to change tree output to make it easier to visualize
+setOption("collapseSampledAncestors", "false")
+
+# read in data and define helper variables
+taxa <- readTaxonData("data/horseshoecrabs_taxa3.tsv")
+morpho <- readDiscreteCharacterData("data/horseshoecrab_morphology2.nex")
+
+num_taxa <- morpho.ntaxa() # number of taxa
+num_branches <- 2 * num_taxa - 2 # number of branches in an rooted tree
+
+# definite set of variables for setting of MCMC
+moves    = VectorMoves()
+monitors = VectorMonitors()
+
+# tree model
+source("scripts/FBD_dating_bin.Rev")
+# clock model
+source("scripts/clock_strict_morpho.Rev")
+# substitution model
+source("scripts/Mk.Rev")
+#source("scripts/GTR.Rev")
+
+# Set up MCMC
+mymodel = model(tree)
+
+# Define set of monitors to capture output
+# parameters printed to file
+monitors.append( mnModel(filename = "output/horseshoecrabs_FBD_bin.log", printgen = 100, exclude = ["F"]) ) ## note exclude = ["File"]
+# trees printed to file
+monitors.append( mnFile(filename = "output/horseshoecrabs_FBD_bin.trees", printgen = 100, tree) )
+# parameter values printed to screen during the MCMC (removed: age_extant,)
+monitors.append( mnScreen(printgen = 10, num_samp_anc, origin_time) )
+
+
+
+mymcmc = mcmc(mymodel, monitors, moves)
+mymcmc.run(generations = 200000, tuningInterval = 1000)
+
+
+# summary tree
+trace = readTreeTrace("output/horseshoecrabs_FBD_bin.trees")
+mccTree(trace, file = "output/horseshoecrabs_FBD_bin.mcc.tre", positiveBranchLengths = TRUE)
