@@ -7,7 +7,7 @@
 setOption("collapseSampledAncestors", "false")
 
 # read in data and define helper variables
-taxa <- readTaxonData("data/horseshoecrabs_taxa2.tsv")
+taxa <- readTaxonData("data/horseshoecrabs_taxa3.tsv")
 morpho <- readDiscreteCharacterData("data/horseshoecrab_morphology2.nex")
 
 num_taxa <- morpho.ntaxa() # number of taxa
@@ -24,15 +24,16 @@ source("scripts/clock_strict_morpho.Rev")
 # substitution model
 source("scripts/Mk.Rev")
 #source("scripts/GTR.Rev")
+# Tim thoughts - mk model extensions (mk lewis model), autocolorlated something clock, different rates for different characters (+ r or i, Laura's lecture), strict clock vs not strict clock
 
 # Set up MCMC
 mymodel = model(tree)
 
 # Define set of monitors to capture output
 # parameters printed to file
-monitors.append( mnModel(filename = "output/horseshoecrabs_FBD.log", printgen = 100, exclude = ["F"]) ) ## note exclude = ["File"]
+monitors.append( mnModel(filename = "output/horseshoecrabs_FBD4.log", printgen = 100, exclude = ["F"]) ) ## note exclude = ["File"]
 # trees printed to file
-monitors.append( mnFile(filename = "output/horseshoecrabs_FBD.trees", printgen = 100, tree) )
+monitors.append( mnFile(filename = "output/horseshoecrabs_FBD4.trees", printgen = 100, tree) )
 # parameter values printed to screen during the MCMC (removed: age_extant,)
 monitors.append( mnScreen(printgen = 10, num_samp_anc, origin_time) )
 
@@ -47,11 +48,11 @@ monitors.append( mnScreen(printgen = 10, num_samp_anc, origin_time) )
 
 
 mymcmc = mcmc(mymodel, monitors, moves)
-mymcmc.run(generations = 100, tuningInterval = 1000)
+mymcmc.run(generations = 200000, tuningInterval = 1000)
 
 # RUN UNDER PRIOR
-#mymcmc.run(generations = 50000, tuningInterval = 5000, underPrior = TRUE)
+#mymcmc.run(generations = 10000, tuningInterval = 5000, underPrior = TRUE)
 
 # summary tree
-trace = readTreeTrace("output/horseshoecrabs_FBD.trees")
-mccTree(trace, file = "output/horseshoecrabs_FBD.mcc.tre", positiveBranchLengths = TRUE)
+trace = readTreeTrace("output/horseshoecrabs_FBD4.trees")
+mccTree(trace, file = "output/horseshoecrabs_FBD4.mcc.tre", positiveBranchLengths = TRUE)

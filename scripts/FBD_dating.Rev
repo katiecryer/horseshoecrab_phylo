@@ -1,4 +1,4 @@
-# FBD model dataing script
+# FBD model dataing script Rachel's edit
 
 # Add speciation, extinction, and fossil sampling rates, assuming constant over time (stochastic)
 speciation_rate ~ dnExponential(10)
@@ -14,19 +14,19 @@ moves.append( mvScale(fossil_samp_rate, lambda = 0.5, tune = true, weight = 3.0)
 diversification := speciation_rate - extinction_rate
 turnover := extinction_rate/speciation_rate
 
-# Probability of extant species sampling - constant of 1.0 since all extant
-rho <- 1.0
+# Probability of extant species sampling - constant of 0.0 since none are extant (1 for all extant)
+rho <- 0.0
 
 # prior and move on the origin time parameter
-origin_time ~ dnUnif(37.0, 55.0)
+origin_time ~ dnUnif(488,630.0)
 moves.append( mvSlide(origin_time, weight=1.0) )
 
 # Specify FBD model along w/ moves on tree topoloy and branch lengths
 tree ~ dnFBDP(lambda = speciation_rate, mu = extinction_rate, psi = fossil_samp_rate, rho = rho, origin = origin_time, taxa = taxa)
 
 # moves to search tree space
-moves.append( mvFNPR(tree, weight = 15.0) )
-moves.append( mvCollapseExpandFossilBranch(tree, origin_time, weight = 6.0) )
+moves.append( mvFNPR(tree, weight = 110.0) ) #num of taxa, more time exploring tree?
+moves.append( mvCollapseExpandFossilBranch(tree, origin_time, weight = 30.0) ) #checking whether sampled ancestors, arbitratily num taxa/3
 moves.append( mvNodeTimeSlideUniform(tree, weight = 40.0) )
 moves.append( mvRootTimeSlideUniform(tree, origin_time, weight = 5.0) )
 
@@ -50,4 +50,5 @@ for(i in 1:fossils.size())
 
 # moves on fossil ages
 moves.append( mvFossilTimeSlideUniform(tree, origin_time, weight = 5.0) )
+
 
