@@ -1,5 +1,5 @@
 # Phangorn comparison of trees
-setwd("/Users/katiehefner/Documents/FAUPaleobiology/Semester_2/Phylogenetics/Project")
+setwd("/Users/katiehefner/Documents/FAUPaleobiology/Semester_2/Phylogenetics/Github/horseshoecrab_phylo")
 library(ape)
 library(phangorn)
 

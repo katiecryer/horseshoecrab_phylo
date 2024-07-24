@@ -1,6 +1,6 @@
 # main script for bayesian tree inference using the fossilised birth-death process RevBayes
 
-# setwd("/Users/katiehefner/Documents/FAUPaleobiology/Semester_2/Phylogenetics/Project")
+# setwd("/Users/katiehefner/Documents/FAUPaleobiology/Semester_2/Phylogenetics/Github/horseshoecrab_phylo")
 # source("scripts/main.Rev")
 
 # command to change tree output to make it easier to visualize
